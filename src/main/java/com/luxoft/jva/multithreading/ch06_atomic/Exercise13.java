@@ -28,7 +28,71 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Exercise13 {
 
-	public static void main(String[] args) {
+	static class Ball
+	{
+		public volatile AtomicInteger ping = new AtomicInteger(0);
+		public volatile AtomicInteger pong = new AtomicInteger(0);
+	}
+
+	static class Ping
+	{
+		void Run(Ball ball)
+		{
+			if(ball.ping.get() == ball.pong.get())
+			{
+				System.out.println("Ping = " + ball.ping.get() );
+				ball.ping.getAndIncrement();
+			}
+		}
+	}
+
+	static class Pong
+	{
+		void Run(Ball ball)
+		{
+			if(ball.pong.get() < ball.ping.get())
+			{
+				System.out.println("Pong = " + ball.pong.get() );
+				ball.pong.getAndIncrement();
+			}
+		}
+	}
+
+	public static void main(String[] args)
+	{
+		Ball ball = new Ball();
+		Ping ping = new Ping();
+		Pong pong = new Pong();
+
+		new Thread(() ->
+		{
+			while(true)
+			{
+				ping.Run(ball);
+				try
+				{
+					Thread.sleep(2000);
+				}
+				catch (Exception e) {
+
+				}
+			}
+		}).start();
+		new Thread(() ->
+		{
+			while(true)
+			{
+				pong.Run(ball);
+				try
+				{
+					Thread.sleep(2000);
+				}
+				catch (Exception e) {
+
+				}
+			}
+		}).start();
+
 		// your code goes here
 	}
 

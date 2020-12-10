@@ -24,9 +24,75 @@ package com.luxoft.jva.multithreading.ch06_atomic;
  *
  * @author BKuczynski.
  */
+
+
 public class Exercise12 {
 
-	public static void main(String[] args) {
+	static class Ball
+	{
+		public volatile int ping = 0;
+		public volatile int pong = 0;
+	}
+
+	static class Ping
+	{
+		void Run(Ball ball)
+		{
+			if(ball.ping == ball.pong)
+			{
+				System.out.println("Ping = " + ball.ping );
+				ball.ping++;
+			}
+		}
+	}
+
+	static class Pong
+	{
+		void Run(Ball ball)
+		{
+			if(ball.pong < ball.ping)
+			{
+				System.out.println("Pong = " + ball.pong );
+				ball.pong++;
+			}
+		}
+	}
+
+	public static void main(String[] args)
+	{
+		Ball ball = new Ball();
+		Ping ping = new Ping();
+		Pong pong = new Pong();
+
+		new Thread(() ->
+		{
+			while(true)
+			{
+				ping.Run(ball);
+				try
+				{
+					Thread.sleep(1000);
+				}
+				catch (Exception e) {
+
+				}
+			}
+		}).start();
+		new Thread(() ->
+		{
+			while(true)
+			{
+				pong.Run(ball);
+				try
+				{
+					Thread.sleep(1000);
+				}
+				catch (Exception e) {
+
+				}
+			}
+		}).start();
+
 		// your code goes here
 	}
 
